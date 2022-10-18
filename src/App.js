@@ -1,31 +1,28 @@
-import React, { useMemo, useState } from "react";
-
-function expensiveFunction(number) {
-  console.log("start");
-  const start = new Date();
-
-  while (new Date() - start < 3000) {}
-
-  console.log("end", new Date() - start, "ms");
-
-  return number * number;
-}
+import React, { useCallback, useState } from "react";
+import ChildComponent from "./components/ChildComponent";
 
 function App() {
-  const [count, setCount] = useState(0);
-	const [num, setNum] = useState(20);
+  const [users, setUsers] = useState([]);
 
-  // const number = expensiveFunction(10);
-  const number = useMemo(() => {
-    return expensiveFunction(num);
-  }, [num]);
+  const getData = useCallback((type) => {
+    return fetch(`https://reqres.in/api/${type}`);
+  }, []);
+
+  const handlerClick = () => {
+    getData("users")
+      .then((res) => res.json())
+      .then((res) => {
+        const users = res.data;
+        setUsers(users);
+      });
+  };
 
   return (
     <>
-      <p>Count {count}</p>
-      <button onClick={() => setCount(count + 1)}>Add</button>
-
-      <p>Number: {number}</p>
+      <p>Data:</p>
+      <button onClick={handlerClick}>Get Users Data</button>
+      <p>{JSON.stringify(users)}</p>
+      <ChildComponent getData={getData} />
     </>
   );
 }
